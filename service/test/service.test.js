@@ -1,3 +1,4 @@
+import { authenticatedFetch as fetch } from './helpers/http-client.js';
 import assert from 'node:assert/strict';
 import { mkdtempSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -942,7 +943,7 @@ test('paused downloads resume with their saved options and retain completed chap
 
 test('HTTP resume endpoint queues a paused download', async (context) => {
   let resumedVersion = null;
-  const server = createHttpServer({
+  const server = createHttpServer({ clientToken: 'test-client',
     requireAccount: false,
     service: { onlineConfigured: true },
     cache: { stats() { return {}; } },

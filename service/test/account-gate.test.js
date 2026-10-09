@@ -1,3 +1,4 @@
+import { authenticatedFetch as fetch } from './helpers/http-client.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -16,7 +17,7 @@ test('Bible catalog, content, downloads, and study require an active YouVersion 
       return 'test-access-token';
     },
   };
-  const server = createHttpServer({
+  const server = createHttpServer({ clientToken: 'test-client',
     authentication,
     oauth: { status: () => ({ pending: false }) },
     cache: { stats: () => ({ rows: 1 }) },

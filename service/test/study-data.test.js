@@ -1,3 +1,4 @@
+import { authenticatedFetch as fetch } from './helpers/http-client.js';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
@@ -114,7 +115,7 @@ test('invalid or conflicting backup rolls back all library changes', t => {
 
 test('study endpoints retain loopback browser protection and validate option updates', async t => {
   const { userData } = fixture(t);
-  const server = createHttpServer({ userData, requireAccount: false });
+  const server = createHttpServer({ clientToken: 'test-client', userData, requireAccount: false });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}`;

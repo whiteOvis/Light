@@ -12,7 +12,7 @@ Bible reading requires a YouVersion account and access to the YouVersion Platfor
 2. Open Light from the top bar and sign in with YouVersion.
 3. Choose a Bible version and start reading.
 
-The installer enables the widget and starts `omarchy-light-public.service` on port 8788. Light stores its data in `~/.config/omarchy/light-public/` and preserves existing LHT services and shortcuts. If a suggested shortcut is occupied, choose another in Settings.
+The installer enables the widget and starts `omarchy-light-public.service` on loopback port 8788. Every HTTP endpoint requires a random local client credential, rotated on daemon startup and stored in the owner-only `~/.config/omarchy/light-public/client-auth-header` file (0600 inside a 0700 directory). The widget reads this file directly; other local users cannot access the service using the daemon owner’s YouVersion session. If you override `LIGHT_CONFIG_DIR`, set the same value for the widget process. Light stores its data in `~/.config/omarchy/light-public/` and preserves existing LHT services and shortcuts. If a suggested shortcut is occupied, choose another in Settings.
 
 ### Install from the Omarchy plugin page
 

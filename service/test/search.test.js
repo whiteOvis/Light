@@ -1,3 +1,4 @@
+import { authenticatedFetch as fetch } from './helpers/http-client.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { DatabaseSync } from 'node:sqlite';
@@ -53,7 +54,7 @@ test('online search uses documented endpoint, selected Bible and opaque paginati
 
 test('HTTP search routes phrases and rejects malformed queries', async (context) => {
   const { createHttpServer } = await import('../src/http-server.js');
-  const server = createHttpServer({ service: new LightService({
+  const server = createHttpServer({ clientToken: 'test-client', service: new LightService({
     bibleClient: { searchVerses: async () => ({ verses: [{ reference: 'JHN.3.16' }] }) },
   }), requireAccount: false });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));

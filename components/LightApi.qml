@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import "I18n.js" as I18n
 
@@ -52,10 +53,19 @@ Item {
     responseText = ""
     errorText = ""
 
+    // Never send the local credential to a configurable remote service.
+    if (!/^http:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::[0-9]+)?\/?$/.test(baseUrl)) {
+      errorText = "Light requires a loopback service URL."
+      finish(-1)
+      return
+    }
+    var configDir = Quickshell.env("LIGHT_CONFIG_DIR")
+      || ((Quickshell.env("XDG_CONFIG_HOME") || (Quickshell.env("HOME") + "/.config")) + "/omarchy/light-public")
     var command = [
       "curl", "-sS", "--max-time", "30", "--fail-with-body",
       "-w", "\n%{http_code}", "-X", activeRequest.method,
-      "-H", "Accept: application/json"
+      "-H", "Accept: application/json",
+      "-H", "@" + configDir + "/client-auth-header"
     ]
     if (activeRequest.body !== null) {
       command = command.concat([
