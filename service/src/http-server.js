@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { StudyData } from './study-data.js';
 
 import { setLightGlobalHotkey, setLightVerseOfTheDayHotkey } from './global-hotkey.js';
@@ -20,6 +21,7 @@ export function createHttpServer({
   applyVerseOfTheDayHotkey = setLightVerseOfTheDayHotkey,
   listSystemBindings = activeSystemBindings,
   requireAccount = true,
+  clientToken = randomBytes(32).toString('hex'),
 }) {
   const study = userData?.database ? new StudyData(userData) : null;
   return createServer(async (request, response) => {
@@ -36,6 +38,13 @@ export function createHttpServer({
       }
       if (request.headers.origin !== undefined || request.headers['sec-fetch-site'] !== undefined) {
         throw new ServiceError('Browser requests are not allowed.', { code: 'FORBIDDEN', status: 403 });
+      }
+      const credential = Buffer.from(request.headers.authorization || '');
+      const expected = Buffer.from(`Bearer ${clientToken}`);
+      if (credential.length !== expected.length || !timingSafeEqual(credential, expected)) {
+        throw new ServiceError('Local client authentication required.', {
+          code: 'CLIENT_AUTHENTICATION_REQUIRED', status: 401,
+        });
       }
       const url = new URL(request.url, 'http://localhost');
       const query = url.searchParams;

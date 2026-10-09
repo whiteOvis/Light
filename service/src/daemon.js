@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+import { randomBytes } from 'node:crypto';
+import { writeFileSync, renameSync, chmodSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { stdin, stdout } from 'node:process';
 
 import { AuthenticationManager } from './auth.js';
@@ -250,7 +254,16 @@ async function serve({
     });
   }
   const port = portNumber(process.env.LIGHT_PORT || 8788);
+  // Rotate on each daemon start. The widget reads this owner-only header file
+  // directly with curl, keeping the credential out of process arguments.
+  const clientToken = randomBytes(32).toString('hex');
+  const headerPath = join(getConfigDir(), 'client-auth-header');
+  const temporaryPath = `${headerPath}.${process.pid}.tmp`;
+  writeFileSync(temporaryPath, `Authorization: Bearer ${clientToken}\n`, { mode: 0o600, flag: 'wx' });
+  renameSync(temporaryPath, headerPath);
+  chmodSync(headerPath, 0o600);
   const server = createHttpServer({
+    clientToken,
     service,
     cache,
     authentication,

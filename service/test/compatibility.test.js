@@ -1,3 +1,4 @@
+import { authenticatedFetch as fetch } from './helpers/http-client.js';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -204,7 +205,7 @@ test('HTTP rejects web origins and rebinding hosts; failed global updates do not
   let mutations = 0;
   let globalChanges = 0;
   let verseOfTheDayChanges = 0;
-  const server = createHttpServer({
+  const server = createHttpServer({ clientToken: 'test-client',
     requireAccount: false,
     userData: data,
     listSystemBindings: () => [],
@@ -217,7 +218,7 @@ test('HTTP rejects web origins and rebinding hosts; failed global updates do not
   const base = `http://127.0.0.1:${server.address().port}`;
   for (const headers of [{ Origin: 'https://example.com' }, { Origin: 'null' }, { Host: 'rebind.example.com' }, { 'Sec-Fetch-Site': 'cross-site' }]) {
     const status = await new Promise((resolve, reject) => {
-      const req = request(`${base}/v1/downloads/111/resume`, { method: 'POST', headers }, (response) => {
+      const req = request(`${base}/v1/downloads/111/resume`, { method: 'POST', headers: { ...headers, authorization: 'Bearer test-client' } }, (response) => {
         response.resume();
         response.on('end', () => resolve(response.statusCode));
       });
@@ -260,7 +261,7 @@ test('HTTP rejects web origins and rebinding hosts; failed global updates do not
 test('HTTP saves and orders radio collections beyond former count and body limits', async (context) => {
   const cache = new SQLiteCache({ directory: mkdtempSync(join(tmpdir(), 'light-radio-capacity-')) });
   const data = new UserDataManager({ database: cache.database, authentication: {} });
-  const server = createHttpServer({ userData: data, requireAccount: false });
+  const server = createHttpServer({ clientToken: 'test-client', userData: data, requireAccount: false });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   context.after(async () => {
     await new Promise((resolve) => server.close(resolve));
