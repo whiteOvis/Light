@@ -38,6 +38,16 @@ Remove Light with `./uninstall.sh`. Your saved data remains on the device.
 
 See **Settings → Shortcuts** for keyboard controls.
 
+## Screenshots
+
+### Bible reader
+
+![Light Bible reader showing John 3](preview.png)
+
+### Christian radio
+
+![Light Christian radio with station playlist](docs/media/radio.png)
+
 ## Data and terms
 
 Settings, notes, bookmarks, and encrypted sign-in data stay on your device. Bible requests and optional highlight sync use YouVersion.
