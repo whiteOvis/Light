@@ -40,6 +40,8 @@ See **Settings → Shortcuts** for keyboard controls.
 
 ## Screenshots
 
+[View all 14 screenshots](docs/SCREENSHOTS.md): reader, Verse of the Day, settings, downloads, shortcuts, and all seven radio layouts.
+
 ### Bible reader
 
 ![Light Bible reader showing John 3](preview.png)
