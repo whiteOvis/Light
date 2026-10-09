@@ -5,7 +5,7 @@ code only. It does not cover Bible text, study data, radio, or online services.
 
 ## Bible text and YouVersion
 
-Light does not ship Bible text. It uses the YouVersion Platform for Bible
+Light does not ship Bible text. The YouVersion Platform is a requirement for Bible
 text, search, Verse of the Day, accounts, and downloads. This content belongs
 to YouVersion, Bible publishers, and their licensors.
 

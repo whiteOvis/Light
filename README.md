@@ -1,10 +1,12 @@
 # Light
 
-A Bible reader for the Omarchy top bar, powered by the YouVersion Platform API.
+A Bible reader and Christian radio player for the Omarchy top bar.
 
 ## Get started
 
 Requires Omarchy/Quickshell, Node.js 22.5+, npm, Qt 6 Multimedia 6.8+, `base-devel`, `pkgconf`, `curl`, `jq`, `wl-clipboard`, and `xdg-utils`.
+
+Bible reading requires a YouVersion account and access to the YouVersion Platform API.
 
 1. In the Light checkout, run `npm ci --prefix service`, then `./install.sh`.
 2. Open Light from the top bar and sign in with YouVersion.
