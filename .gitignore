@@ -1,0 +1,16 @@
+.env
+.agents/
+.codex/
+node_modules/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.enc
+token.key
+*.bak
+*.bak.*
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.so

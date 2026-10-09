@@ -1,0 +1,47 @@
+# Light
+
+A Bible reader for the Omarchy top bar, powered by the YouVersion Platform API.
+
+## Get started
+
+Requires Omarchy/Quickshell, Node.js 22.5+, npm, Qt 6 Multimedia 6.8+, `base-devel`, `pkgconf`, `curl`, `jq`, `wl-clipboard`, and `xdg-utils`.
+
+1. In the Light checkout, run `npm ci --prefix service`, then `./install.sh`.
+2. Open Light from the top bar and sign in with YouVersion.
+3. Choose a Bible version and start reading.
+
+The installer enables the widget and starts `omarchy-light-public.service` on port 8788. Light stores its data in `~/.config/omarchy/light-public/` and preserves existing LHT services and shortcuts. If a suggested shortcut is occupied, choose another in Settings.
+
+### Install from the Omarchy plugin page
+
+Add the repository without enabling it yet:
+
+```bash
+omarchy plugin add https://github.com/whiteOvis/Light.git
+cd ~/.config/omarchy/plugins/light.bible-reader
+npm ci --prefix service
+./install.sh
+```
+
+If prompted to enable during `plugin add`, choose No until setup finishes. Omarchy does not run Light's service setup automatically. To update, run `omarchy plugin update light.bible-reader`, then repeat the dependency and installation commands in that directory. Keep the checkout: the service runs from it.
+
+Type a reference or phrase to search. Click the faint book, chapter, or version inside the search box to browse.
+
+Remove Light with `./uninstall.sh`. Your saved data remains on the device.
+
+## Features
+
+- Highlights, notes, bookmarks, and tabs.
+- Offline reading where permitted by the selected version.
+- Adjustable text, night mode, and optional Christian radio.
+- Markdown exports for notes and bookmarks.
+
+See **Settings → Shortcuts** for keyboard controls.
+
+## Data and terms
+
+Settings, notes, bookmarks, and encrypted sign-in data stay on your device. Bible requests and optional highlight sync use YouVersion.
+
+Light ships without Bible text. Content availability and use follow [YouVersion’s API requirements](https://developers.youversion.com/api-usage) and publisher terms. Light is independent and is not endorsed by YouVersion.
+
+[Privacy](https://www.bible.com/privacy) · [Terms](https://platform.youversion.com/?tos=1) · [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)

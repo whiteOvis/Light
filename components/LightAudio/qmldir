@@ -1,0 +1,3 @@
+module LightAudio
+plugin lightaudio
+typeinfo plugins.qmltypes

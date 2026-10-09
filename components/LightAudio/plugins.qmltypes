@@ -1,0 +1,40 @@
+import QtQuick.tooling 1.2
+Module {
+    Component {
+        name: "RadioMetadata"
+        prototype: "QObject"
+        exports: ["LightAudio/RadioMetadata 1.0"]
+        exportMetaObjectRevisions: [256]
+        Property { name: "source"; type: "QUrl"; read: "source"; write: "setSource"; notify: "sourceChanged" }
+        Property { name: "active"; type: "bool"; read: "active"; write: "setActive"; notify: "activeChanged" }
+        Property { name: "title"; type: "QString"; read: "title"; notify: "titleChanged"; isReadonly: true }
+        Signal { name: "sourceChanged" }
+        Signal { name: "activeChanged" }
+        Signal { name: "titleChanged" }
+    }
+
+    Component { name: "QAudioBufferOutput"; prototype: "QObject" }
+    Component {
+        name: "AudioTap"
+        prototype: "QAudioBufferOutput"
+        exports: ["LightAudio/AudioTap 1.0"]
+        exportMetaObjectRevisions: [256]
+        Property { name: "scratching"; type: "bool"; read: "scratching"; notify: "scratchingChanged"; isReadonly: true }
+        Property { name: "scratchMix"; type: "double"; read: "scratchMix"; notify: "scratchMixChanged"; isReadonly: true }
+        Method { name: "beginScratch"; type: "bool" }
+        Method { name: "moveScratch"; Parameter { name: "radians"; type: "double" }
+            Parameter { name: "seconds"; type: "double" } }
+        Method { name: "endScratch" }
+        Signal { name: "scratchingChanged" }
+        Signal { name: "scratchMixChanged" }
+        Property { name: "gain"; type: "double"; read: "gain"; write: "setGain"; notify: "gainChanged" }
+        Property { name: "player"; type: "QObject"; isPointer: true; read: "player"; write: "setPlayer"; notify: "playerChanged" }
+        Property { name: "active"; type: "bool"; read: "active"; write: "setActive"; notify: "activeChanged" }
+        Property { name: "levels"; type: "QVariantList"; read: "levels"; notify: "measurementsChanged"; isReadonly: true }
+        Property { name: "waveform"; type: "QVariantList"; read: "waveform"; notify: "measurementsChanged"; isReadonly: true }
+        Signal { name: "gainChanged" }
+        Signal { name: "playerChanged" }
+        Signal { name: "activeChanged" }
+        Signal { name: "measurementsChanged" }
+    }
+}

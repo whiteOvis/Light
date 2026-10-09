@@ -1,0 +1,45 @@
+name: Validate Light
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: service/package-lock.json
+      - name: Install locked service dependencies
+        run: npm ci --prefix service
+      - name: Check service JavaScript
+        run: npm run check --prefix service
+      - name: Run source or release tests
+        shell: bash
+        run: |
+          if [[ -f manifest.json ]]; then
+            node --test test/*.test.mjs service/test/*.test.js
+          else
+            node --test plugin/test/*.test.js service/test/*.test.js
+          fi
+      - name: Check shell scripts and release manifest
+        shell: bash
+        run: |
+          if [[ -f manifest.json ]]; then
+            bash -n install.sh uninstall.sh
+            node -e 'const m=require("./manifest.json"); if(m.id!=="light.bible-reader"||m.schemaVersion!==1) process.exit(1)'
+          else
+            bash -n plugin/install.sh plugin/uninstall.sh scripts/create-public-copy.sh
+            node -e 'const m=require("./plugin/light/manifest.json"); if(m.schemaVersion!==1) process.exit(1)'
+          fi
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --prefix service

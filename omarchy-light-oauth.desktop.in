@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Light OAuth
+Comment=Complete Light sign-in through the Omarchy deep link
+Exec=env "@NODE@" "@CALLBACK@" %u
+Type=Application
+Terminal=false
+NoDisplay=true
+StartupNotify=false
+MimeType=x-scheme-handler/omarchy;

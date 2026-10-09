@@ -1,0 +1,3 @@
+Panel 1.0 Panel.qml
+LightView 1.0 LightView.qml
+singleton LightSession 1.0 LightSession.qml
