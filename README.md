@@ -16,16 +16,23 @@ The installer enables the widget and starts `omarchy-light-public.service` on lo
 
 ### Install from the Omarchy plugin page
 
-Add the repository without enabling it yet:
+After installing the prerequisites above, copy this complete command into your terminal:
 
 ```bash
-omarchy plugin add https://github.com/whiteOvis/Light.git
-cd ~/.config/omarchy/plugins/light.bible-reader
-npm ci --prefix service
-./install.sh
+(omarchy plugin add https://github.com/whiteOvis/Light.git --yes && cd "$HOME/.config/omarchy/plugins/light.bible-reader" && npm ci --prefix service && ./install.sh)
 ```
 
-If prompted to enable during `plugin add`, choose No until setup finishes. Omarchy does not run Light's service setup automatically. To update, run `omarchy plugin update light.bible-reader`, then repeat the dependency and installation commands in that directory. Keep the checkout: the service runs from it.
+This adds the repository without enabling it, installs the service dependencies, builds the native audio module, configures the local service, and enables Light only after setup succeeds. `--yes` accepts Omarchy's repository confirmation; each `&&` stops setup if the previous step fails.
+
+The marketplace currently marks Light as **Manual setup** and suppresses its standard copy-install button because `omarchy plugin add ... --enable` alone cannot complete the required build and service setup. Use the complete command above instead.
+
+To update an existing installation:
+
+```bash
+(omarchy plugin update light.bible-reader && cd "$HOME/.config/omarchy/plugins/light.bible-reader" && npm ci --prefix service && ./install.sh)
+```
+
+Keep the checkout: the service runs from it.
 
 Type a reference or phrase to search. Click the faint book, chapter, or version inside the search box to browse.
 
