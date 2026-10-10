@@ -15,12 +15,14 @@ export class OAuthManager {
     env = process.env,
     fetchImplementation = globalThis.fetch,
     openUrl = openExternalUrl,
+    prepareCallback = () => {},
   }) {
     this.tokenStore = tokenStore;
     this.appKey = appKey;
     this.env = env;
     this.fetch = fetchImplementation;
     this.openUrl = openUrl;
+    this.prepareCallback = prepareCallback;
   }
 
   async start({ scopes = ['profile', 'email'], permissions = [], open = true } = {}) {
@@ -45,10 +47,12 @@ export class OAuthManager {
         && existing.apiHost === apiHost && existing.redirectUri === redirectUri
         && JSON.stringify(existing.requestedScopes) === JSON.stringify(selectedScopes)
         && JSON.stringify(existing.requestedPermissions) === JSON.stringify(selectedPermissions)) {
+      await this.prepareCallback();
       if (open) await this.openPendingAuthorization(existing);
       return { stage: 'authorization-started', redirectUri,
         authorizationUrl: existing.continuationUrl || existing.authorizationUrl, openedBrowser: open, expiresAt: existing.expiresAt };
     }
+    await this.prepareCallback();
     const state = randomUrlSafe(24);
     const nonce = randomUrlSafe(24);
     const codeVerifier = randomUrlSafe(48);

@@ -1,6 +1,6 @@
 {
   "name": "omarchy-light-service",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Local Light daemon and offline SQLite Bible cache for Omarchy.",
   "main": "src/daemon.js",
@@ -11,14 +11,18 @@
     "start": "node src/daemon.js serve",
     "cli": "node src/daemon.js",
     "check": "node --check src/daemon.js && node --check src/http-server.js && node --check src/service.js && node --check src/platform-config.js && node --check src/platform-api-client.js && node --check src/rate-limited-bible-client.js && node --check src/cache.js && node --check src/paths.js && node --check src/token-store.js && node --check src/oauth.js && node --check src/oauth-dispatch.js && node --check src/auth.js && node --check src/download-manager.js && node --check src/user-data-manager.js && node --check src/study-data.js",
-    "test": "node --test"
+    "test": "node --test",
+    "build": "node ../scripts/build-runtime.mjs"
   },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=22.13.0"
   },
   "license": "MIT",
   "type": "module",
   "dependencies": {
     "@youversion/platform-core": "^2.14.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

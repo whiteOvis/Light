@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Offline validation against installed Omarchy/Quickshell; builds the native audio tap.
+// Offline validation against installed Omarchy/Quickshell. Native audio is optional.
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -78,7 +78,8 @@ ShellRoot {
 }
 
 try {
-  console.log(run('bash', [join(root, pluginDir, 'components/LightAudio/build.sh')]));
+  if (process.argv.includes('--native-audio'))
+    console.log(run('bash', [join(root, pluginDir, 'components/LightAudio/build.sh')]));
   console.log(`Omarchy ${run('omarchy', ['version']).trim()}`);
   console.log(run('quickshell', ['--version']).trim());
   for (const file of readdirSync(join(root, 'service/src')).filter((file) => file.endsWith('.js')))
@@ -87,6 +88,7 @@ try {
     packagedLayout ? 'install.sh' : 'plugin/install.sh',
     packagedLayout ? 'uninstall.sh' : 'plugin/uninstall.sh',
     'scripts/create-public-copy.sh',
+    'service/start.sh',
   ].filter((file) => existsSync(join(root, file)));
   run('bash', ['-n', ...shellScripts]);
   const serviceDependenciesReady = existsSync(join(root, 'service/node_modules/@youversion/platform-core'));
@@ -97,7 +99,10 @@ try {
     .flatMap((dir) => readdirSync(join(root, dir))
     .filter((file) => /\.test\.(?:js|mjs)$/.test(file)).map((file) => join(root, dir, file)));
   if (tests.length > 0) console.log(run(process.execPath, ['--test', ...tests]));
-  run('omarchy', ['plugin', 'validate', pluginDir]);
+  const release = join(staging, 'release');
+  cpSync(join(root, pluginDir), release, { recursive: true,
+    filter: path => !/(?:\/node_modules|\/\.git)(?:\/|$)/.test(path) });
+  run('omarchy', ['plugin', 'validate', release]);
   const report = join(staging, 'lint.json');
   const lint = spawnSync(process.env.QMLLINT || '/usr/lib/qt6/bin/qmllint', [
     '-W', '0', '--json', report, '-i', join(shell, 'Commons/qmldir'),
@@ -119,6 +124,8 @@ try {
   if (unexpected || diagnostics.files.length !== qmlFiles.length) throw new Error('QML validation failed');
   console.log(`QML: 0 unverified warnings; ${verifiedThemeDiagnostics} installed theme members verified (QtObject metadata limitation).`);
   if (!process.argv.includes('--static-only')) {
+    console.log(run(process.execPath, ['scripts/validate-qml-runtime.mjs',
+      ...(process.argv.includes('--native-audio') ? ['--native-audio'] : [])]));
     symlinkSync(join(shell, 'Commons'), join(staging, 'Commons'));
     symlinkSync(join(shell, 'Ui'), join(staging, 'Ui'));
     const testDir = join(root, pluginDir, 'components/tests');

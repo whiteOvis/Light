@@ -2,13 +2,16 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "I18n.js" as I18n
+import ".."
 
 // Serialized loopback HTTP client. Direct argv execution keeps request data
 // out of shell parsing while a queue prevents overlapping Process output.
 Item {
   id: root
 
-  property string baseUrl: "http://127.0.0.1:8788"
+  readonly property bool backendReady: LightSession.backend && LightSession.backend.ready
+  onBackendReadyChanged: if (backendReady) pump()
+  property string baseUrl: LightSession.backend ? LightSession.backend.baseUrl : "http://127.0.0.1:8788"
   property string appLanguage: "en-US"
   property var queue: []
   property var activeRequest: null
@@ -47,6 +50,7 @@ Item {
   function remove(path, tag) { request("DELETE", path, null, tag) }
 
   function pump() {
+    if (LightSession.backend && !backendReady) return
     if (requestProcess.running || activeRequest !== null || queue.length === 0) return
     activeRequest = queue[0]
     queue = queue.slice(1)
@@ -138,6 +142,18 @@ Item {
       Qt.callLater(function() { root.finish(exitCode) })
     }
     // qmllint enable signal-handler-parameters
+  }
+
+  Timer {
+    interval: 12000
+    running: root.queue.length > 0 && LightSession.backend !== null && !root.backendReady
+    onTriggered: {
+      var pending = root.queue
+      root.queue = []
+      var message = LightSession.backend ? LightSession.backend.error : ""
+      for (var request of pending)
+        root.failed(request.tag, message || I18n.t(root.appLanguage, "serviceUnreachable"), 0, null)
+    }
   }
 
   Timer {

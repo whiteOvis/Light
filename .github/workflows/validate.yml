@@ -21,6 +21,10 @@ jobs:
           cache-dependency-path: service/package-lock.json
       - name: Install locked service dependencies
         run: npm ci --prefix service
+      - name: Verify shipped runtime matches source
+        run: |
+          npm run build --prefix service
+          git diff --exit-code -- service/dist/
       - name: Check service JavaScript
         run: npm run check --prefix service
       - name: Run source or release tests

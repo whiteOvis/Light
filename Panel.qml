@@ -164,7 +164,7 @@ Panel {
 
   readonly property var barIdentity: hostWidget || root
   readonly property string serviceBaseUrl: String(
-    setting("serviceBaseUrl", "http://127.0.0.1:8788")
+    setting("serviceBaseUrl", LightSession.backend ? LightSession.backend.baseUrl : "http://127.0.0.1:8788")
   )
 
   function normalizedAppScale(value) {

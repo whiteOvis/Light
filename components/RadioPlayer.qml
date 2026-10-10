@@ -7,7 +7,7 @@ import "I18n.js" as I18n
 import "RadioStations.js" as RadioStations
 import "RadioSkins.js" as RadioSkins
 import "PassageFormat.js" as PassageFormat
-import "LightAudio"
+import ".."
 
 FocusScope {
   id: root
@@ -117,7 +117,7 @@ FocusScope {
     ? buildMetadataPages(player.metaData)
     : []
   readonly property var currentDisplayPage: displayPageForVerse(dailyVersePages)
-  readonly property string streamDetailsText: radioMetadata.title || streamMetadataPages.map(function(page) {
+  readonly property string streamDetailsText: audioTap.title || streamMetadataPages.map(function(page) {
     return page.primary + (page.secondary ? " — " + page.secondary : "")
   }).join("   ·   ")
 
@@ -465,18 +465,14 @@ FocusScope {
     }
   }
 
-  RadioMetadata {
-    id: radioMetadata
-    source: player.source
-    active: root.playing && root.opened && root.metadataMatchesCurrentStation
-  }
-
-  AudioTap {
+  AudioFeatures {
     id: audioTap
     objectName: "radioAudioTap"
     player: root.audioSourcePlayer
     gain: root.volume
     active: root.playing && !root.buffering && root.visible
+    nativeAvailable: LightSession.backend && LightSession.backend.nativeAudioAvailable
+    nativeSource: LightSession.backend ? LightSession.backend.nativeAudioUrl : ""
     onMeasurementsChanged: skinArtwork.requestPaint()
   }
 
