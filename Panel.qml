@@ -1582,6 +1582,15 @@ Panel {
               root.accountAuthenticated = authenticated
               root.refreshAccountStatus()
             }
+            onSignInCompleted: {
+              root.open()
+              root.radioOpened = false
+              root.verseOfTheDayOpened = false
+              applicationView.closeStudy()
+              modal.settingsPage = "account"
+              modal.open()
+              modal.notice = I18n.t(root.appLanguage, "signedInNotice")
+            }
             onPanelCloseRequested: modal.close()
             onClosed: {
               if (root.opened && applicationView.inputItem)

@@ -234,4 +234,45 @@ TestCase {
   click(defaults.radioVolumeDown); check(radio.volume<before)
   click(defaults.radioVolumeUp); compare(Math.round(radio.volume*100),Math.round(before*100))
  }
+ function test_signInCompletionReturnsToLight() {
+  panel.openSettings("account")
+  waitForRendering(test)
+  tryVerify(function() { return panel.settingsModal !== null && panel.settingsModal.opened })
+  var settings=panel.settingsModal
+  settings.authenticated=false
+  settings.signInPending=true
+  panel.close()
+  check(!panel.opened,"browser took focus and hid Light")
+  settings.handleSettingsSuccess("settings.auth",{authenticated:true,configured:true,pending:false},200)
+  check(panel.opened,"completed sign-in brings Light back")
+  check(settings.opened,"account settings are visible")
+  equal(settings.settingsPage,"account")
+  check(settings.notice.indexOf("Signed in")>=0,"success confirmation is visible")
+  check(!settings.signInPending)
+  panel.close()
+  settings.handleSettingsSuccess("settings.auth",{authenticated:true,configured:true,pending:false},200)
+  check(!panel.opened,"later status polls must not reopen Light")
+ }
+ function test_existingSessionDoesNotStealFocus() {
+  panel.openSettings("account")
+  tryVerify(function() { return panel.settingsModal !== null && panel.settingsModal.opened })
+  var settings=panel.settingsModal
+  settings.authenticated=false
+  settings.signInPending=false
+  panel.close()
+  settings.handleSettingsSuccess("settings.auth",{authenticated:true,configured:true,pending:false},200)
+  check(!panel.opened,"discovering an existing session must stay quiet")
+ }
+ function test_failedSignInDoesNotShowSuccess() {
+  panel.openSettings("account")
+  tryVerify(function() { return panel.settingsModal !== null && panel.settingsModal.opened })
+  var settings=panel.settingsModal
+  settings.authenticated=false
+  settings.signInPending=true
+  panel.close()
+  settings.handleSettingsSuccess("settings.auth",{authenticated:false,configured:true,pending:false,error:{message:"Sign-in denied"}},200)
+  check(!panel.opened)
+  equal(settings.notice,"")
+  equal(settings.errorMessage,"Sign-in denied")
+ }
 }
