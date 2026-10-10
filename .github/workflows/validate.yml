@@ -54,8 +54,10 @@ jobs:
     container: archlinux:base
     steps:
       - name: Install Qt and Quickshell test runtime
-        run: pacman -Syu --noconfirm --needed git nodejs quickshell qt6-multimedia qt6-multimedia-ffmpeg ttf-dejavu
+        run: pacman -Syu --noconfirm --needed git nodejs npm quickshell qt6-multimedia qt6-multimedia-ffmpeg ttf-dejavu
       - uses: actions/checkout@v4
+      - name: Install locked source-test dependencies
+        run: npm ci --omit=dev --ignore-scripts --prefix service
       - name: Fetch pinned Omarchy UI modules
         run: |
           git init /tmp/light-omarchy
