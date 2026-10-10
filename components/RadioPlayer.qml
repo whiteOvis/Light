@@ -4,6 +4,7 @@ import QtMultimedia
 import QtQuick.Controls as QQC
 import qs.Commons
 import "I18n.js" as I18n
+import "ShortcutUtils.js" as ShortcutUtils
 import "RadioStations.js" as RadioStations
 import "RadioSkins.js" as RadioSkins
 import "PassageFormat.js" as PassageFormat
@@ -1540,13 +1541,13 @@ FocusScope {
         Accessible.role: Accessible.Slider
         Accessible.name: I18n.t(root.appLanguage, "radioVolume")
         Shortcut {
-          sequence: root.keybindings.radioVolumeDown || "Shift+Left"
+          sequences: ShortcutUtils.expandedSequences(root.keybindings.radioVolumeDown || "Shift+Left")
           context: Qt.WindowShortcut
           enabled: volumeSlider.activeFocus
           onActivated: root.setVolume(root.volume - 0.05)
         }
         Shortcut {
-          sequence: root.keybindings.radioVolumeUp || "Shift+Right"
+          sequences: ShortcutUtils.expandedSequences(root.keybindings.radioVolumeUp || "Shift+Right")
           context: Qt.WindowShortcut
           enabled: volumeSlider.activeFocus
           onActivated: root.setVolume(root.volume + 0.05)

@@ -9,6 +9,7 @@ var EN = {
   readPassage: "Read full passage",
   collapsePassage: "Collapse passage",
 
+  newTab: "New tab",
   cancel: "Cancel",
   shortcutSearchEditing: "Radio playback shortcuts pause while typing in station search. Study panels use the focused control’s navigation.",
 

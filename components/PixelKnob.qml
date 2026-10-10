@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 
 // A keyboard, wheel, and drag-adjustable studio knob with stepped pixel
 // shading. Callers bind value and apply adjusted() to their state.
@@ -12,9 +13,9 @@ FocusScope {
   property real maximum: 1
   property real step: 0.05
   property string label: "LEVEL"
-  property color foreground: Color.popups.text
-  property color muted: Color.muted
-  property color accent: Color.accent
+  property color foreground: Commons.Color.popups.text
+  property color muted: Commons.Color.muted
+  property color accent: Commons.Color.accent
   property real minimumDialSize: Style.space(34)
   property real labelGap: Style.spacing.xxs
   property real dragStartY: 0
@@ -94,7 +95,7 @@ FocusScope {
       height: width
       radius: width / 2
       antialiasing: false
-      color: Qt.darker(Color.popups.background, 1.18)
+      color: Qt.darker(Commons.Color.popups.background, 1.18)
       border.color: root.muted
       border.width: root.pixel * 2
 

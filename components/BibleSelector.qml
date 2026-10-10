@@ -1,7 +1,9 @@
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 import "BibleData.js" as BibleData
 import "I18n.js" as I18n
+import "ShortcutUtils.js" as ShortcutUtils
 import "PassageFormat.js" as PassageFormat
 
 // Compact reference search with ordinary text editing and explicit submission.
@@ -649,7 +651,7 @@ Item {
   }
 
   Shortcut {
-    sequence: root.keybindings.freshInput || "Ctrl+Backspace"
+    sequences: ShortcutUtils.expandedSequences(root.keybindings.freshInput || "Ctrl+Backspace")
     context: Qt.WindowShortcut
     // Preserve native word deletion while editing any reference field.
     enabled: root.inputActive && !bookInput.activeFocus
@@ -951,7 +953,7 @@ Item {
             color: radioButton.activeFocus
               || radioMouseArea.containsMouse
                 ? root.accent
-                : LightPalette.nightMode ? LightPalette.popupText : Color.bar.text
+                : LightPalette.nightMode ? LightPalette.popupText : Commons.Color.bar.text
           }
 
           Accessible.name: I18n.t(root.appLanguage, "openRadio")
@@ -986,7 +988,7 @@ Item {
             name: "settings"
             color: settingsButton.activeFocus || settingsMouseArea.containsMouse
               ? root.accent
-              : LightPalette.nightMode ? LightPalette.popupText : Color.bar.text
+              : LightPalette.nightMode ? LightPalette.popupText : Commons.Color.bar.text
           }
 
           Accessible.name: I18n.t(root.appLanguage, "openSettings")

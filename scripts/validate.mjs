@@ -124,6 +124,7 @@ try {
   if (unexpected || diagnostics.files.length !== qmlFiles.length) throw new Error('QML validation failed');
   console.log(`QML: 0 unverified warnings; ${verifiedThemeDiagnostics} installed theme members verified (QtObject metadata limitation).`);
   if (!process.argv.includes('--static-only')) {
+    console.log(run(process.execPath, ['scripts/validate-shortcuts.mjs']));
     console.log(run(process.execPath, ['scripts/validate-qml-runtime.mjs',
       ...(process.argv.includes('--native-audio') ? ['--native-audio'] : [])]));
     symlinkSync(join(shell, 'Commons'), join(staging, 'Commons'));

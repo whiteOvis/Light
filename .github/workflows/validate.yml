@@ -47,3 +47,24 @@ jobs:
           fi
       - name: Audit production dependencies
         run: npm audit --omit=dev --prefix service
+
+  keyboard-shortcuts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container: archlinux:base
+    steps:
+      - name: Install Qt and Quickshell test runtime
+        run: pacman -Syu --noconfirm --needed git nodejs npm quickshell qt6-multimedia qt6-multimedia-ffmpeg ttf-dejavu
+      - uses: actions/checkout@v4
+      - name: Install locked source-test dependencies
+        run: npm ci --omit=dev --ignore-scripts --prefix service
+      - name: Fetch pinned Omarchy UI modules
+        run: |
+          git init /tmp/light-omarchy
+          git -C /tmp/light-omarchy remote add origin https://github.com/basecamp/omarchy.git
+          git -C /tmp/light-omarchy fetch --depth 1 origin a15636b59eb4b25355383231c24e1993e193d821
+          git -C /tmp/light-omarchy checkout --detach FETCH_HEAD
+      - name: Exercise every in-app shortcut with Qt keyboard events
+        env:
+          OMARCHY_PATH: /tmp/light-omarchy
+        run: node scripts/validate-shortcuts.mjs

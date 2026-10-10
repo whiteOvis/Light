@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 
 // Light's shared compact icon renderer. The paths are drawn on a normalized
 // vector canvas so every symbol stays crisp at fractional display scaling.
@@ -8,8 +9,8 @@ Item {
   id: root
 
   property string name: "close"
-  property color color: Color.popups.text
-  property color accentColor: Color.accent
+  property color color: Commons.Color.popups.text
+  property color accentColor: Commons.Color.accent
   property bool useAccentPixels: false
   property real glyphScale: 0.82
 

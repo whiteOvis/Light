@@ -42,7 +42,11 @@ bindings when disabled. It restores them after a compositor configuration
 reload without editing Hyprland configuration files. Existing bindings take
 priority: if another app uses a key, choose a free key in Light's Settings.
 Existing user-configured Light bindings remain untouched. All in-app shortcuts
-remain available and customizable.
+remain available and customizable. Ctrl+T immediately opens a blank reading tab;
+Ctrl+W closes it, Ctrl+Tab / Ctrl+Shift+Tab switch tabs, and Ctrl+1–7 select them.
+Blank tabs and separate tabs for the same chapter are saved independently.
+Settings sections use Ctrl+Shift+1–7, including keyboards that report shifted
+number keys as punctuation.
 
 ## Account and local data
 

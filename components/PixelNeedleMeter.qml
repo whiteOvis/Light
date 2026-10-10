@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 
 // Compact analog instrumentation for the reel deck. The needle uses a smooth
 // transition while the housing, scale, and shading stay on the pixel grid.
@@ -11,11 +12,11 @@ Item {
   property string readout: "0"
   property real value: 0
   property bool active: false
-  property color foreground: Color.popups.text
-  property color muted: Color.muted
-  property color accent: Color.accent
+  property color foreground: Commons.Color.popups.text
+  property color muted: Commons.Color.muted
+  property color accent: Commons.Color.accent
   property color faceColor: Util.alpha(accent, active ? 0.1 : 0.045)
-  property color housingColor: Qt.darker(Color.popups.background, 1.12)
+  property color housingColor: Qt.darker(Commons.Color.popups.background, 1.12)
   readonly property real clampedValue: Math.max(0, Math.min(1, value))
   readonly property real pixel: Math.max(1, Math.round(height / 32))
 
@@ -114,7 +115,7 @@ Item {
       width: root.pixel * 6
       height: root.pixel * 4
       color: root.foreground
-      border.color: Color.background
+      border.color: Commons.Color.background
       border.width: root.pixel
       radius: 0
     }

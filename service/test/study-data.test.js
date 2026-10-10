@@ -175,3 +175,17 @@ test('text brightness defaults to full, persists its range, and rejects invalid 
     assert.equal(study.options().textBrightness, 1);
   }
 });
+
+test('blank tabs and separate tabs for the same chapter retain their order and active selection', t => {
+  const { userData } = fixture(t);
+  const state = { tabs: [
+    { version: 111, passage: 'JHN.3', scrollY: 120 },
+    { version: 111, passage: '' },
+    { version: '', passage: '' },
+    { version: 111, passage: 'JHN.3', scrollY: 600 },
+  ], activeTabIndex: 3 };
+  userData.setReaderTabs(state);
+  assert.deepEqual(userData.getReaderTabs(), state);
+  assert.throws(() => userData.setReaderTabs({ tabs: [{ version: -1, passage: '' }], activeTabIndex: 0 }),
+    error => error.status === 400);
+});

@@ -6195,16 +6195,17 @@ function normalizeReaderTabs(value) {
     throw badRequest3(`no more than ${MAX_READER_TABS} reader tabs may be saved.`);
   }
   const tabs = [];
-  const seen = /* @__PURE__ */ new Set();
   for (const item of value.tabs) {
+    if (item?.passage === "") {
+      const version3 = item?.version === "" ? "" : positiveInteger5(item?.version, "reader tab version");
+      tabs.push({ version: version3, passage: "" });
+      continue;
+    }
     const version2 = positiveInteger5(item?.version, "reader tab version");
     const passage = contextPassage(item?.passage);
     if (!/^[A-Z0-9]{3}\.\d+$/.test(passage)) {
       throw badRequest3("reader tabs must reference Bible chapters.");
     }
-    const key = `${version2}:${passage}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
     const verse = String(item?.verse || "").trim();
     if (verse && !/^\d+(?:-\d+)?$/.test(verse)) {
       throw badRequest3("reader tab verses must be a verse number or range.");
@@ -6308,6 +6309,21 @@ function normalizeRadioStationOrder(value) {
   }
   return result;
 }
+function shortcutIdentity(value) {
+  const pieces = value.toLowerCase().split("+");
+  let key = pieces.pop();
+  if (key === "") {
+    key = "+";
+    pieces.pop();
+  }
+  const modifiers = new Set(pieces.map((part) => part === "super" ? "meta" : part));
+  key = { enter: "return", comma: ",", period: ".", plus: "+", minus: "-", equal: "=" }[key] || key;
+  if (key === "+" || key === "=" && modifiers.has("shift")) {
+    key = "+";
+    modifiers.delete("shift");
+  }
+  return [...modifiers].sort().join("+") + ":" + key;
+}
 function normalizeKeybindings(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw badRequest3("keybindings must be an object.");
@@ -6321,7 +6337,7 @@ function normalizeKeybindings(value) {
     if (!modified && !unmodified) {
       throw badRequest3(`keybinding ${name} must contain a supported key.`);
     }
-    const key = shortcut.toLowerCase().replace(/\+shift\+=$/, "++").replace(/\+shift\+\+$/, "++");
+    const key = shortcutIdentity(shortcut);
     if (seen.has(key)) throw new ServiceError(`${shortcut} is already assigned to ${seen.get(key)} in Light.`, { code: "KEYBINDING_CONFLICT", status: 409 });
     seen.set(key, name);
     result[name] = shortcut;

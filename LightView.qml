@@ -60,7 +60,6 @@ Item {
   property var _versionBatches: ({})
   property int _pendingCatalogRequests: 0
   property bool _initialTabsRestored: false
-  property bool _newTabPending: false
   property real _pendingTabScrollY: -1
   property bool _restoringTabScroll: false
 
@@ -166,17 +165,14 @@ Item {
   function normalizeTabs(value) {
     var raw = value && value.tabs instanceof Array ? value.tabs : []
     var result = []
-    var seen = ({})
     for (var i = 0; i < raw.length && result.length < maximumTabs; i++) {
       var item = raw[i] || {}
       var version = String(item.version || "")
       var passage = String(item.passage || "").toUpperCase()
       var verse = String(item.verse || "")
-      if (!/^\d+$/.test(version) || !/^[A-Z0-9]{3}\.\d+$/.test(passage)) continue
+      if (version !== "" && !/^\d+$/.test(version)) continue
+      if (passage !== "" && (!/^\d+$/.test(version) || !/^[A-Z0-9]{3}\.\d+$/.test(passage))) continue
       if (verse !== "" && !/^\d+(?:-\d+)?$/.test(verse)) continue
-      var key = version + ":" + passage
-      if (seen[key]) continue
-      seen[key] = true
       var normalized = { version: version, passage: passage }
       if (verse !== "") normalized.verse = verse
       var scrollY = Number(item.scrollY)
@@ -219,7 +215,7 @@ Item {
 
   function tabLabel(tab) {
     var ref = tabReference(tab)
-    if (!ref) return ""
+    if (!ref) return I18n.t(appLanguage, "newTab")
     var label = BibleData.bookAbbreviation(ref.book) + ref.chapter
     if (ref.verse !== "") label += ":" + ref.verse
     return label
@@ -227,7 +223,7 @@ Item {
 
   function tabTooltip(tab) {
     var ref = tabReference(tab)
-    if (!ref) return ""
+    if (!ref) return I18n.t(appLanguage, "newTab")
     var book = ref.book
     for (var i = 0; i < bookOptions.length; i++)
       if (bookOptions[i].value === ref.book) book = bookOptions[i].label
@@ -289,7 +285,12 @@ Item {
     if (!accountAuthenticated) return false
     if (activeTabIndex < 0 || activeTabIndex >= tabs.length) return false
     var reference = tabReference(tabs[activeTabIndex])
-    if (!reference) return false
+    if (!reference) {
+      clearPassageForNewInput()
+      bibleSelector.restoreReference("", "", String(tabs[activeTabIndex].version || selectedVersion), false)
+      bibleSelector.focusBookForNewInput()
+      return true
+    }
     passage = ({})
     passageMetadata = ({})
     highlights = []
@@ -310,7 +311,8 @@ Item {
   }
 
   function persistActiveTabScroll() {
-    if (_restoringTabScroll || activeTabIndex < 0 || activeTabIndex >= tabs.length) return
+    if (_restoringTabScroll || activeTabIndex < 0 || activeTabIndex >= tabs.length
+        || !tabReference(tabs[activeTabIndex])) return
     var scrollY = Number(passageReader.scrollY)
     if (!isFinite(scrollY) || scrollY < 0) return
     var next = tabs.slice(0)
@@ -340,9 +342,8 @@ Item {
         && existing.scrollY !== undefined) {
       item.scrollY = existing.scrollY
     }
-    if (_newTabPending || activeTabIndex < 0 || activeTabIndex >= next.length) {
+    if (activeTabIndex < 0 || activeTabIndex >= next.length) {
       if (next.length >= maximumTabs) {
-        _newTabPending = false
         return
       }
       next.push(item)
@@ -351,7 +352,6 @@ Item {
       next[activeTabIndex] = item
     }
     tabs = next
-    _newTabPending = false
     saveTabs()
     if (api) api.post("/v1/study/history", {
       version: Number(selectedVersion), passage: reference,
@@ -359,10 +359,29 @@ Item {
     }, "view.history-save")
   }
 
+  function clearPassageForNewInput() {
+    if (api) api.cancelReads("view.passage:")
+    _passageRequestKey = ""
+    passageLoading = false
+    passageError = ""
+    passage = ({})
+    passageMetadata = ({})
+    highlights = []
+    pendingSearchVerse = ""
+    _pendingTabScrollY = -1
+    _restoringTabScroll = false
+    collapseReader()
+  }
+
   function openNewTab() {
     if (tabs.length >= maximumTabs) return false
-    _newTabPending = true
-    collapseReader()
+    tabScrollSaveTimer.stop()
+    persistActiveTabScroll()
+    tabs = tabs.concat([{ version: String(selectedVersion), passage: "" }])
+    activeTabIndex = tabs.length - 1
+    clearPassageForNewInput()
+    bibleSelector.restoreReference("", "", selectedVersion, false)
+    saveTabs()
     bibleSelector.focusBookForNewInput()
     return true
   }
@@ -372,7 +391,6 @@ Item {
     tabScrollSaveTimer.stop()
     persistActiveTabScroll()
     activeTabIndex = index
-    _newTabPending = false
     saveTabs()
     restoreActiveTab(true)
     return true
@@ -386,10 +404,6 @@ Item {
   }
 
   function closeActiveTab() {
-    if (_newTabPending) {
-      _newTabPending = false
-      return restoreActiveTab(true)
-    }
     if (tabs.length === 0) return false
     tabScrollSaveTimer.stop()
     persistActiveTabScroll()
@@ -397,13 +411,10 @@ Item {
     var next = tabs.slice(0)
     next.splice(index, 1)
     tabs = next
-    _newTabPending = false
     if (next.length === 0) {
       activeTabIndex = -1
-      passage = ({})
-      passageMetadata = ({})
-      highlights = []
-      collapseReader()
+      clearPassageForNewInput()
+      bibleSelector.restoreReference("", "", selectedVersion, false)
       saveTabs()
       bibleSelector.focusBookForNewInput()
       return true

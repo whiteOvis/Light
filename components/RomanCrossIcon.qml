@@ -1,12 +1,13 @@
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 
 // Light's lighter geometric Latin cross from before the pixel-art redesign.
 // Smooth rectangles keep the identity mark independent of icon fonts.
 Item {
   id: root
 
-  property color color: Color.bar.text
+  property color color: Commons.Color.bar.text
   property real stemWidthRatio: 0.165
   property real crossbarYRatio: 0.34
 
