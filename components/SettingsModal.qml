@@ -222,6 +222,7 @@ FocusScope {
   signal keybindingsCommitRequested(var keybindings)
   signal accountSyncRequested()
   signal authenticationChanged(bool authenticated)
+  signal signInCompleted()
   signal panelCloseRequested()
 
   visible: opened
@@ -959,6 +960,7 @@ FocusScope {
   function handleSettingsSuccess(tag, payload, status) {
     if (tag === "settings.auth") {
       var wasAuthenticated = root.authenticated
+      var wasSignInPending = root.signInPending
       root.authenticated = payload && payload.authenticated === true
       if (root.authenticated !== wasAuthenticated)
         root.authenticationChanged(root.authenticated)
@@ -974,6 +976,9 @@ FocusScope {
         root.accountSyncRequested()
         root.api.get("/v1/downloads", "settings.downloads")
         if (root.versionSearchQuery.trim() !== "") root.requestVersionCatalog()
+        // The browser hides the popup. Only a sign-in started here should
+        // bring it back; discovering an existing session must stay quiet.
+        if (wasSignInPending) root.signInCompleted()
       } else if (wasAuthenticated && !root.authenticated) {
         root.packages = []
         root.versionCatalog = []

@@ -7,6 +7,8 @@ omarchy plugin add https://github.com/whiteOvis/Light.git --enable
 ```
 
 Open Light from the top bar, choose Sign in, and use your YouVersion account.
+When sign-in finishes, Light reopens its Account page with a success message.
+You can close the provider's browser tab afterward.
 The backend and required JavaScript dependencies are ready to run. No npm
 installation, native build, service installation, or extra setup command is
 required on a standard current Omarchy installation.
