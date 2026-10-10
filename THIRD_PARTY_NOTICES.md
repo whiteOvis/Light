@@ -18,7 +18,13 @@ the Bible publisher's terms.
 ## Software
 
 Light uses YouVersion's `@youversion/platform-core` under Apache-2.0 and Zod
-under MIT. Qt, Quickshell, Node.js, and Omarchy are system dependencies. Their
+under MIT. These dependencies are included in the readable JavaScript runtime
+in `service/dist/`. Their license texts are included in
+[`service/licenses/`](service/licenses/). The runtime is rebuilt from the exact
+versions recorded in `service/package-lock.json`; esbuild is a development-only
+bundler and is not required to install or run Light.
+
+Qt, Quickshell, Node.js, and Omarchy are system dependencies. Their
 names and marks belong to their owners.
 
 ## Radio

@@ -6,10 +6,14 @@ QtObject {
   property var widgets: []
   property var panel: null
   property var panelFactory: null
+  property var backend: null
+  property var backendFactory: null
 
   function registerWidget(widget) {
     if (widgets.indexOf(widget) >= 0) return
     widgets = widgets.concat([widget])
+    if (!backendFactory) backendFactory = Qt.createComponent(Qt.resolvedUrl("BackendRuntime.qml"))
+    if (!backend) backend = backendFactory.createObject(root)
     if (!panelFactory) panelFactory = Qt.createComponent(Qt.resolvedUrl("Panel.qml"))
     if (!panel) panel = panelFactory.createObject(root)
     if (!panel) {
@@ -34,18 +38,22 @@ QtObject {
 
   function unregisterWidget(widget) {
     widgets = widgets.filter(function(item) { return item && item !== widget })
-    if (!panel) return
     if (widgets.length === 0) {
+      if (backend) backend.destroy()
+      backend = null
+      backendFactory = null
       // A singleton must never keep an input surface alive after plugin unload.
       var oldPanel = panel
       panel = null
       panelFactory = null
-      oldPanel.close()
-      oldPanel.hostWidget = null
-      oldPanel.anchorItem = null
-      oldPanel.bar = null
-      oldPanel.destroy()
-    } else if (panel.hostWidget === widget) {
+      if (oldPanel) {
+        oldPanel.close()
+        oldPanel.hostWidget = null
+        oldPanel.anchorItem = null
+        oldPanel.bar = null
+        oldPanel.destroy()
+      }
+    } else if (panel && panel.hostWidget === widget) {
       attach(widgets[0])
     }
   }

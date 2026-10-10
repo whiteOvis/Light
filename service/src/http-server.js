@@ -2,7 +2,11 @@ import { createServer } from 'node:http';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { StudyData } from './study-data.js';
 
-import { setLightGlobalHotkey, setLightVerseOfTheDayHotkey } from './global-hotkey.js';
+function shortcutsUnavailable() {
+  throw new ServiceError('Global shortcuts require Light to be enabled in an Omarchy session.', {
+    code: 'KEYBINDINGS_UNAVAILABLE', status: 503,
+  });
+}
 import { ServiceError } from './service.js';
 import { normalizeKeybindings } from './user-data-manager.js';
 import { activeSystemBindings, checkSystemKeybindingConflicts } from './keybinding-conflicts.js';
@@ -17,8 +21,8 @@ export function createHttpServer({
   downloadManager,
   oauth,
   userData,
-  applyGlobalHotkey = setLightGlobalHotkey,
-  applyVerseOfTheDayHotkey = setLightVerseOfTheDayHotkey,
+  applyGlobalHotkey = shortcutsUnavailable,
+  applyVerseOfTheDayHotkey = shortcutsUnavailable,
   listSystemBindings = activeSystemBindings,
   requireAccount = true,
   clientToken = randomBytes(32).toString('hex'),
@@ -62,9 +66,6 @@ export function createHttpServer({
 
       switch (route) {
         case 'GET /health':
-          if (authentication?.status?.().authenticated) {
-            try { await authentication.getAccessToken(); } catch {}
-          }
           result = {
             ok: true,
             onlineConfigured: service.onlineConfigured,

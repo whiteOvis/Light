@@ -29,7 +29,7 @@ test('public package has its stable identity and complete runtime', () => {
 test('public package contains no development plugin identity or private state', () => {
   const production = [
     'manifest.json', 'BarWidget.qml', 'Panel.qml', 'LightView.qml',
-    'install.sh', 'uninstall.sh', 'omarchy-light.service.in',
+    'install.sh', 'uninstall.sh',
   ].map(read).join('\n')
   assert.doesNotMatch(production, /local\.light/)
   for (const path of ['service/.env', 'service/light.sqlite', 'service/token.key'])

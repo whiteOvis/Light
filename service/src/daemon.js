@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 import { randomBytes } from 'node:crypto';
-import { writeFileSync, renameSync, chmodSync } from 'node:fs';
+import { writeFileSync, renameSync, chmodSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { registerOAuthCallback, repairExistingOAuthCallback } from './oauth-registration.js';
+import { SessionHotkeys } from './session-hotkeys.js';
+import { prepareNativeAudio } from './native-audio.js';
 
 import { stdin, stdout } from 'node:process';
 
@@ -57,6 +60,20 @@ async function main() {
     return;
   }
 
+  const managed = command === 'serve' && argumentsList.includes('--managed');
+  if (managed) {
+    try { repairExistingOAuthCallback(); } catch {
+      process.stderr.write('Light could not refresh its existing sign-in handler; try Sign in again.\n');
+    }
+  }
+  const nativeAudio = prepareNativeAudio();
+  // Existing manual installations can retain their running service during an
+  // upgrade. Authenticate before reusing it; never rotate its credential.
+  if (managed && await existingServiceAvailable()) {
+    stdout.write(`LIGHT_READY ${JSON.stringify({ ...nativeAudio, existingService: true })}\n`);
+    if (!await followExistingService()) return;
+    stdout.write('LIGHT_RESTARTING\n');
+  }
   const configDirectory = getConfigDir();
   const cache = new SQLiteCache({
     directory: configDirectory,
@@ -90,7 +107,7 @@ async function main() {
     highlightsClient,
     authentication,
   });
-  const oauth = new OAuthManager({ tokenStore });
+  const oauth = new OAuthManager({ tokenStore, prepareCallback: registerOAuthCallback });
 
   try {
     if (command === 'serve') {
@@ -100,7 +117,7 @@ async function main() {
         authentication,
         downloadManager,
         oauth,
-        userData,
+        userData, managed, nativeAudio,
       });
       return;
     }
@@ -245,6 +262,8 @@ async function serve({
   downloadManager,
   oauth,
   userData,
+  managed = false,
+  nativeAudio = {},
 }) {
   const host = process.env.LIGHT_HOST || '127.0.0.1';
   if (!['127.0.0.1', '::1', 'localhost'].includes(host)) {
@@ -259,11 +278,14 @@ async function serve({
   const clientToken = randomBytes(32).toString('hex');
   const headerPath = join(getConfigDir(), 'client-auth-header');
   const temporaryPath = `${headerPath}.${process.pid}.tmp`;
-  writeFileSync(temporaryPath, `Authorization: Bearer ${clientToken}\n`, { mode: 0o600, flag: 'wx' });
-  renameSync(temporaryPath, headerPath);
-  chmodSync(headerPath, 0o600);
+  const hotkeys = managed && process.env.HYPRLAND_INSTANCE_SIGNATURE ? new SessionHotkeys() : null;
+
   const server = createHttpServer({
     clientToken,
+    ...(hotkeys ? {
+      applyGlobalHotkey: shortcut => hotkeys.set('globalToggle', shortcut),
+      applyVerseOfTheDayHotkey: shortcut => hotkeys.set('verseOfTheDay', shortcut),
+    } : {}),
     service,
     cache,
     authentication,
@@ -271,22 +293,83 @@ async function serve({
     oauth,
     userData,
   });
-  server.listen(port, host, () => {
-    stdout.write(`Light service listening on http://${host}:${port}\n`);
+  // Acquire the port before publishing a credential; a concurrent start must
+  // never invalidate the running instance's authentication file.
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, host, resolve);
   });
-
+  try {
+    writeFileSync(temporaryPath, `Authorization: Bearer ${clientToken}\n`, { mode: 0o600, flag: 'wx' });
+    renameSync(temporaryPath, headerPath);
+    chmodSync(headerPath, 0o600);
+  } catch (error) {
+    server.close();
+    throw error;
+  }
+  let shortcutTimer;
+  if (hotkeys) {
+    hotkeys.reconcile(userData.getKeybindings());
+    shortcutTimer = setInterval(() => hotkeys.reconcile(userData.getKeybindings()), 5000);
+  }
+  stdout.write(`Light service listening on http://${host}:${port}\n`);
+  if (managed) stdout.write(`LIGHT_READY ${JSON.stringify(nativeAudio)}\n`);
+  let closing = false;
   const shutdown = () => {
-    server.close(() => {
-      cache.close();
-      process.exit(0);
-    });
+    if (closing) return;
+    closing = true;
+    clearInterval(shortcutTimer);
+    hotkeys?.close();
+    server.close();
+    server.closeAllConnections();
   };
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
-  await new Promise((resolve, reject) => {
-    server.once('close', resolve);
-    server.once('error', reject);
-  });
+  if (managed) {
+    // QProcess owns this pipe. Closing the shell also closes it, even if the
+    // parent exits without sending SIGTERM.
+    stdin.resume();
+    stdin.once('end', shutdown);
+    if (stdin.readableEnded) shutdown();
+  }
+  await new Promise(resolve => server.once('close', resolve));
+  process.removeListener('SIGINT', shutdown);
+  process.removeListener('SIGTERM', shutdown);
+  if (managed) { stdin.removeListener('end', shutdown); stdin.pause(); }
+}
+
+async function followExistingService() {
+  let stopped = false;
+  const stop = () => { stopped = true; };
+  stdin.resume();
+  stdin.once('end', stop);
+  process.once('SIGTERM', stop);
+  try {
+    while (!stopped && !stdin.readableEnded) {
+      await new Promise(resolve => setTimeout(resolve, 750));
+      if (stopped || stdin.readableEnded) return false;
+      if (!await existingServiceAvailable()) return !stopped;
+    }
+    return false;
+  } finally {
+    stdin.removeListener('end', stop);
+    process.removeListener('SIGTERM', stop);
+  }
+}
+
+async function existingServiceAvailable() {
+  const host = process.env.LIGHT_HOST || '127.0.0.1';
+  if (!['127.0.0.1', 'localhost', '::1'].includes(host)) return false;
+  const port = portNumber(process.env.LIGHT_PORT || 8788);
+  try {
+    const header = readFileSync(join(getConfigDir(), 'client-auth-header'), 'utf8').trim();
+    if (!/^Authorization: Bearer [a-f0-9]{64}$/.test(header)) return false;
+    const response = await fetch(`http://${host === '::1' ? '[::1]' : host}:${port}/health`, {
+      headers: { authorization: header.slice(15) }, signal: AbortSignal.timeout(2000),
+    });
+    const data = await response.json();
+    return response.ok && data.ok === true && typeof data.authentication?.authenticated === 'boolean';
+  } catch { return false; }
 }
 
 async function tokenCommand(action, tokenStore) {
@@ -393,7 +476,11 @@ function integerSetting(value, minimum, maximum) {
   return number;
 }
 
-main().catch((error) => {
+main().then(() => {
+  // SQLite has been closed by main's finally. Interrupted downloads are
+  // recovered on the next start; do not leave their timers alive after unload.
+  if (process.argv.includes('--managed')) process.exit(0);
+}).catch((error) => {
   const known = error instanceof ServiceError;
   process.stderr.write(`${known ? error.code : 'ERROR'}: ${error.message}\n`);
   process.exitCode = 1;
