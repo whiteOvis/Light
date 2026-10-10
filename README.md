@@ -2,6 +2,10 @@
 
 A Bible reader and Christian radio player for the Omarchy top bar.
 
+## [Install Light →](INSTALL.md)
+
+**[Open the installation page for the complete copy-and-paste terminal command.](INSTALL.md)**
+
 ## Get started
 
 Requires Omarchy/Quickshell, Node.js 22.5+, npm, Qt 6 Multimedia 6.8+, `base-devel`, `pkgconf`, `curl`, `jq`, `wl-clipboard`, and `xdg-utils`.
