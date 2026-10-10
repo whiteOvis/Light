@@ -1,6 +1,6 @@
 {
   "name": "omarchy-light-service",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "description": "Local Light daemon and offline SQLite Bible cache for Omarchy.",
   "main": "src/daemon.js",

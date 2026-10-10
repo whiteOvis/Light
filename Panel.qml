@@ -990,7 +990,7 @@ Panel {
       width: 0
       height: 0
       Shortcut {
-        sequence: root.keybindings.closeCurrentPage
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.closeCurrentPage)
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle && !applicationView.searchSuggestionsOpen
         autoRepeat: false
@@ -1020,7 +1020,7 @@ Panel {
       // Window shortcuts work even when a button or text field owns focus.
       // Keep them local to Light, and let shortcut capture receive raw keys.
       Shortcut {
-        sequence: root.keybindings.navigateUp
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.navigateUp)
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle && !applicationView.studyOpened
         autoRepeat: true
@@ -1031,7 +1031,7 @@ Panel {
         }
       }
       Shortcut {
-        sequence: root.keybindings.navigateDown
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.navigateDown)
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle && !applicationView.studyOpened
         autoRepeat: true
@@ -1043,7 +1043,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.radioPrevious
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.radioPrevious)
         context: Qt.WindowShortcut
         enabled: root.opened && root.radioOpened && root.radioPlayer
           && !root.radioPlayer.searchInputActive && root.shortcutCaptureIdle
@@ -1052,7 +1052,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.radioNext
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.radioNext)
         context: Qt.WindowShortcut
         enabled: root.opened && root.radioOpened && root.radioPlayer
           && !root.radioPlayer.searchInputActive && root.shortcutCaptureIdle
@@ -1061,7 +1061,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.radioPlayPause
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.radioPlayPause)
         context: Qt.WindowShortcut
         enabled: root.opened && root.radioOpened && root.radioPlayer
           && !root.radioPlayer.searchInputActive && root.shortcutCaptureIdle
@@ -1070,7 +1070,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.radioPrevious
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.radioPrevious)
         context: Qt.WindowShortcut
         enabled: root.opened && !root.radioOpened && !root.settingsOpened
           && !applicationView.keyboardInputActive && !applicationView.studyOpened && root.shortcutCaptureIdle
@@ -1078,7 +1078,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.radioNext
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.radioNext)
         context: Qt.WindowShortcut
         enabled: root.opened && !root.radioOpened && !root.settingsOpened
           && !applicationView.keyboardInputActive && !applicationView.studyOpened && root.shortcutCaptureIdle
@@ -1102,7 +1102,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.toggleReaderFontStyle
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.toggleReaderFontStyle)
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle && !applicationView.studyOpened
         autoRepeat: false
@@ -1126,7 +1126,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.toggleNightMode || "Ctrl+D"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.toggleNightMode || "Ctrl+D")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1150,111 +1150,111 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.newTab
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.newTab)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.openNewTab()
       }
 
       Shortcut {
-        sequence: root.keybindings.closeTab
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.closeTab)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.closeActiveTab()
       }
 
       Shortcut {
-        sequence: root.keybindings.nextTab
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.nextTab)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.cycleTabs(1)
       }
 
       Shortcut {
-        sequence: root.keybindings.previousTab
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.previousTab)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.cycleTabs(-1)
       }
 
       Shortcut {
-        sequence: root.keybindings.freshInput
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.freshInput)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened
           && !root.verseOfTheDayOpened && !applicationView.keyboardInputActive
         autoRepeat: false
         onActivated: applicationView.startNewSearch()
       }
 
       Shortcut {
-        sequence: root.keybindings.tab1
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab1)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(0)
       }
 
       Shortcut {
-        sequence: root.keybindings.tab2
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab2)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(1)
       }
 
       Shortcut {
-        sequence: root.keybindings.tab3
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab3)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(2)
       }
 
       Shortcut {
-        sequence: root.keybindings.tab4
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab4)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(3)
       }
 
       Shortcut {
-        sequence: root.keybindings.tab5
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab5)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(4)
       }
 
       Shortcut {
-        sequence: root.keybindings.tab6
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab6)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(5)
       }
 
       Shortcut {
-        sequence: root.keybindings.tab7
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.tab7)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened && !root.radioOpened && !applicationView.studyOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened && !root.radioOpened && !root.verseOfTheDayOpened && !applicationView.studyOpened
         autoRepeat: false
         onActivated: applicationView.selectTab(6)
       }
 
       Shortcut {
-        sequence: root.keybindings.openSettings
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.openSettings)
         context: Qt.WindowShortcut
-        enabled: root.opened && !root.settingsOpened
+        enabled: root.opened && root.shortcutCaptureIdle && !root.settingsOpened
         onActivated: root.openSettings()
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsReading || "Ctrl+Shift+1"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsReading || "Ctrl+Shift+1")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1262,7 +1262,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsAccount || "Ctrl+Shift+2"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsAccount || "Ctrl+Shift+2")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1270,7 +1270,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsBackup || "Ctrl+Shift+3"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsBackup || "Ctrl+Shift+3")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1278,7 +1278,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsAppearance || "Ctrl+Shift+4"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsAppearance || "Ctrl+Shift+4")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1286,7 +1286,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsRadio || "Ctrl+Shift+5"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsRadio || "Ctrl+Shift+5")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1294,7 +1294,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsShortcuts || "Ctrl+Shift+6"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsShortcuts || "Ctrl+Shift+6")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1302,7 +1302,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.settingsLanguages || "Ctrl+Shift+7"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.settingsLanguages || "Ctrl+Shift+7")
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1310,7 +1310,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.cycleRadioSkin || "Ctrl+Shift+M"
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.cycleRadioSkin || "Ctrl+Shift+M")
         context: Qt.WindowShortcut
         enabled: root.opened && root.musicPlayerEnabled && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1318,14 +1318,14 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.openRadio
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.openRadio)
         context: Qt.WindowShortcut
         enabled: root.opened && root.musicPlayerEnabled && root.shortcutCaptureIdle
         onActivated: root.openRadio()
       }
 
       Shortcut {
-        sequence: root.keybindings.openLibrary
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.openLibrary)
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1333,7 +1333,7 @@ Panel {
       }
 
       Shortcut {
-        sequence: root.keybindings.openHistory
+        sequences: ShortcutUtils.expandedSequences(root.keybindings.openHistory)
         context: Qt.WindowShortcut
         enabled: root.opened && root.shortcutCaptureIdle
         autoRepeat: false
@@ -1348,6 +1348,7 @@ Panel {
 
         LightView {
           id: applicationView
+          objectName: "lightView"
           width: applicationContainer.contentWidth
           height: applicationContainer.contentHeight
           api: api

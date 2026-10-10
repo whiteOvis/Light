@@ -35,3 +35,14 @@ test('shifted equals is recognized as a plus-key collision', () => {
   assert.throws(() => checkSystemKeybindingConflicts(changed, DEFAULT_KEYBINDINGS, active),
     (error) => error.code === 'KEYBINDING_CONFLICT');
 });
+
+test('equivalent modifier order, plus forms and key aliases cannot create ambiguous shortcuts', () => {
+  for (const shortcut of ['Alt+Ctrl+Left', 'Ctrl+Shift+=', 'Ctrl+Shift++']) {
+    assert.throws(() => normalizeKeybindings({ ...DEFAULT_KEYBINDINGS, newTab: shortcut }),
+      error => error.code === 'KEYBINDING_CONFLICT');
+  }
+  assert.throws(() => normalizeKeybindings({ ...DEFAULT_KEYBINDINGS, newTab: 'Ctrl+Enter', closeTab: 'Ctrl+Return' }),
+    error => error.code === 'KEYBINDING_CONFLICT');
+  assert.throws(() => normalizeKeybindings({ ...DEFAULT_KEYBINDINGS, newTab: 'Meta+J', closeTab: 'Super+J' }),
+    error => error.code === 'KEYBINDING_CONFLICT');
+});

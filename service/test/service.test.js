@@ -1132,6 +1132,7 @@ test('user data manager syncs highlights and manages local notes and color prefe
     tabs: [
       { version: 3034, passage: 'JHN.3', verse: '16', scrollY: 248 },
       { version: 111, passage: 'GEN.1' },
+      { version: 3034, passage: 'JHN.3', verse: '16', scrollY: 248 },
     ],
     activeTabIndex: 1,
   });
@@ -1149,7 +1150,7 @@ test('user data manager syncs highlights and manages local notes and color prefe
   ]);
   assert.equal(userData.getAppLanguage(), 'es-419');
   assert.deepEqual(userData.getSecondaryBibleLanguages(), ['es', 'fr']);
-  assert.equal(userData.getReaderTabs().tabs.length, 2);
+  assert.equal(userData.getReaderTabs().tabs.length, 3);
   assert.throws(
     () => userData.setAppScale(0.7),
     (error) => error.status === 400 && error.code === 'BAD_REQUEST',
