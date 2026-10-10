@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import qs.Commons
+import qs.Commons as Commons
 
 QtObject {
   id: palette
@@ -14,19 +15,19 @@ QtObject {
       surface.b + (colorValue.b - surface.b) * amount, colorValue.a)
   }
 
-  readonly property color baseForeground: nightMode ? "#ffffff" : Color.foreground
-  readonly property color baseMuted: nightMode ? "#ffffff" : Color.muted
-  readonly property color baseAccent: nightMode ? "#ffffff" : Color.accent
-  readonly property color baseUrgent: nightMode ? "#ffffff" : Color.urgent
-  readonly property color baseBibleText: nightMode ? "#ffffff" : Color.popups.text
-  readonly property color basePopupText: nightMode ? "#ffffff" : Color.popups.text
-  readonly property color background: nightMode ? "#000000" : Color.background
+  readonly property color baseForeground: nightMode ? "#ffffff" : Commons.Color.foreground
+  readonly property color baseMuted: nightMode ? "#ffffff" : Commons.Color.muted
+  readonly property color baseAccent: nightMode ? "#ffffff" : Commons.Color.accent
+  readonly property color baseUrgent: nightMode ? "#ffffff" : Commons.Color.urgent
+  readonly property color baseBibleText: nightMode ? "#ffffff" : Commons.Color.popups.text
+  readonly property color basePopupText: nightMode ? "#ffffff" : Commons.Color.popups.text
+  readonly property color background: nightMode ? "#000000" : Commons.Color.background
   readonly property color foreground: dimText(baseForeground, popupBackground)
   readonly property color muted: dimText(baseMuted, popupBackground)
   readonly property color accent: dimText(baseAccent, popupBackground)
   readonly property color urgent: dimText(baseUrgent, popupBackground)
   readonly property color bibleText: dimText(baseBibleText, popupBackground)
-  readonly property color popupBackground: nightMode ? "#000000" : Color.popups.background
+  readonly property color popupBackground: nightMode ? "#000000" : Commons.Color.popups.background
   readonly property color popupText: dimText(basePopupText, popupBackground)
-  readonly property color popupBorder: nightMode ? "#292929" : Color.popups.border
+  readonly property color popupBorder: nightMode ? "#292929" : Commons.Color.popups.border
 }

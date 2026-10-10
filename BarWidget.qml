@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 import "components"
 
@@ -77,7 +78,7 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
     active: root.opened
-    activeColor: Color.bar.active
+    activeColor: Commons.Color.bar.active
     slotSize: Style.bar.iconSlot
     tooltipText: "Light"
 

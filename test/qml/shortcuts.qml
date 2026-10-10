@@ -170,6 +170,28 @@ TestCase {
   click(defaults.closeTab)
   equal(view.tabs.length,2)
  }
+ function test_readerChapterArrows() {
+  var selector=findChild(view,"bibleSelector")
+  selector.restoreReference("JHN","2","111",true)
+  view.chapterOptions=[{value:"1",label:"1"},{value:"2",label:"2"},{value:"3",label:"3"}]
+  selector.dismissSuggestions()
+  view.forceActiveFocus()
+  wait(20)
+  click(defaults.radioPrevious)
+  equal(view.selectedChapter,"1")
+  view.forceActiveFocus()
+  click(defaults.radioNext)
+  equal(view.selectedChapter,"2")
+ }
+ function test_radioArrowContexts() {
+  setup("radioPrevious")
+  var radio=panel.radioPlayer
+  var before=radio.currentStationIndex
+  click(defaults.navigateDown)
+  check(radio.currentStationIndex!==before)
+  click(defaults.navigateUp)
+  equal(radio.currentStationIndex,before)
+ }
  function test_searchKeys() {
   var selector=findChild(view,"bibleSelector")
   selector.selectedVersion="111"

@@ -74,6 +74,9 @@ ShellRoot {
     child.on('error',reject);child.on('close',()=>{clearTimeout(timer);resolvePromise(logs);});
   });
   const result=output.match(/LIGHT_SHORTCUT_RESULT (\{[^\n]+\})/);
-  if(!result || JSON.parse(result[1]).failures || /ReferenceError|TypeError|Cannot assign|Binding loop|is not a type/.test(output)) throw new Error(output);
+  if(!result || JSON.parse(result[1]).failures || /ReferenceError|TypeError|Cannot assign|Binding loop|is not a type/.test(output)) {
+    const diagnostics = [...new Set(output.split('\n').filter(line => /ReferenceError|TypeError|SHORTCUT_FAILURE|LIGHT_SHORTCUT_RESULT|Error loading|not a type/.test(line)))].join('\n');
+    throw new Error(diagnostics || output);
+  }
   console.log('Qt keyboard shortcut checks:',result[1]);
 } finally { rmSync(stage,{recursive:true,force:true}); }
