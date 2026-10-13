@@ -1,0 +1,27 @@
+--- a/src/plugins/platforms/wayland/qwaylanddataoffer.cpp
++++ b/src/plugins/platforms/wayland/qwaylanddataoffer.cpp
+@@ -245,8 +245,14 @@
+     readset.fd = fd;
+     readset.events = POLLIN;
+ 
++    // Bound both allocation and wall-clock time, including continuously readable pipes.
++    constexpr qsizetype maximumBytes = 16 * 1024 * 1024;
++    const QDeadlineTimer transferDeadline(2s);
+     Q_FOREVER {
+-        int ready = qt_safe_poll(&readset, 1, QDeadlineTimer(1s));
++        if (transferDeadline.hasExpired())
++            return -1;
++        const auto remainingMs = qMin<qint64>(1000, transferDeadline.remainingTime());
++        int ready = qt_safe_poll(&readset, 1, QDeadlineTimer(remainingMs));
+         if (ready < 0) {
+             qWarning() << "QWaylandDataOffer: qt_safe_poll() failed";
+             return -1;
+@@ -263,6 +269,8 @@
+             } else if (n == 0) {
+                 return 0;
+             } else if (n > 0) {
++                if (n > maximumBytes - data.size())
++                    return -1;
+                 data.append(buf, n);
+             }
+         }

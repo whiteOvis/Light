@@ -21,7 +21,8 @@ test('sign-in registration preserves the previous handler and repairs moved path
   writeFileSync(callback, '// fixture');
   registerOAuthCallback({ env, run, callback, daemon: '/old checkout/daemon.mjs' });
   const desktop = join(env.XDG_DATA_HOME, 'applications/omarchy-light-public-oauth.desktop');
-  assert.match(readFileSync(desktop, 'utf8'), /Exec=\/usr\/bin\/env "LIGHT_CONFIG_DIR=[^"]+" "node" "[^"]+oauth-dispatch.mjs" %u/);
+  assert.ok(readFileSync(desktop, 'utf8').includes(`"${process.execPath}"`));
+  assert.match(readFileSync(desktop, 'utf8'), /Exec=\/usr\/bin\/env "LIGHT_CONFIG_DIR=[^"]+" "[^"]+" "[^"]+oauth-dispatch.mjs" %u/);
   const bridge = join(env.XDG_DATA_HOME, 'omarchy/light-public/oauth-dispatch.mjs');
   assert.equal(readFileSync(bridge, 'utf8'), '// fixture');
   const saved = join(env.LIGHT_CONFIG_DIR, 'oauth-fallback.json');

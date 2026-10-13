@@ -12,14 +12,14 @@ export function registerOAuthCallback({ env = process.env,
   node,
   // The service is bundled at service/dist/daemon.mjs. Copy a built-in-only
   // dispatcher outside the checkout so other apps' callbacks still work after
-  // a standard plugin removal. Node is resolved through PATH across mise updates.
+  // a standard plugin removal. Use the running, known-working Node executable:
+  // a browser's working directory/PATH may resolve a mise shim differently.
   callback = fileURLToPath(new URL('../dist/oauth-dispatch.mjs', import.meta.url)),
   daemon = fileURLToPath(new URL('../dist/daemon.mjs', import.meta.url)),
   run = (command, args) => execFileSync(command, args, { encoding: 'utf8', env, timeout: 5000 }),
 } = {}) {
   const dataHome = env.XDG_DATA_HOME || join(env.HOME || homedir(), '.local/share');
-  const stableNode = join(env.MISE_DATA_DIR || join(dataHome, 'mise'), 'shims/node');
-  node ||= existsSync(stableNode) ? stableNode : 'node';
+  node ||= process.execPath;
   const applications = join(dataHome, 'applications');
   const bridgeDirectory = join(dataHome, 'omarchy/light-public');
   const bridge = join(bridgeDirectory, 'oauth-dispatch.mjs');
