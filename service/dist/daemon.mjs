@@ -39,14 +39,14 @@ function registerOAuthCallback({
   node,
   // The service is bundled at service/dist/daemon.mjs. Copy a built-in-only
   // dispatcher outside the checkout so other apps' callbacks still work after
-  // a standard plugin removal. Node is resolved through PATH across mise updates.
+  // a standard plugin removal. Use the running, known-working Node executable:
+  // a browser's working directory/PATH may resolve a mise shim differently.
   callback = fileURLToPath(new URL("../dist/oauth-dispatch.mjs", import.meta.url)),
   daemon = fileURLToPath(new URL("../dist/daemon.mjs", import.meta.url)),
   run = (command, args) => execFileSync(command, args, { encoding: "utf8", env, timeout: 5e3 })
 } = {}) {
   const dataHome = env.XDG_DATA_HOME || join(env.HOME || homedir2(), ".local/share");
-  const stableNode = join(env.MISE_DATA_DIR || join(dataHome, "mise"), "shims/node");
-  node ||= existsSync(stableNode) ? stableNode : "node";
+  node ||= process.execPath;
   const applications = join(dataHome, "applications");
   const bridgeDirectory = join(dataHome, "omarchy/light-public");
   const bridge = join(bridgeDirectory, "oauth-dispatch.mjs");
@@ -6572,6 +6572,61 @@ var StudyData = class {
   }
 };
 
+// service/src/clipboard.js
+import { spawn } from "node:child_process";
+var MAX_CLIPBOARD_BYTES = 64 * 1024;
+var CLIPBOARD_TIMEOUT_MS = 1500;
+function readClipboard({
+  primary = false,
+  spawnImplementation = spawn,
+  timeoutMs = CLIPBOARD_TIMEOUT_MS
+} = {}) {
+  return new Promise((resolve3, reject) => {
+    const args = ["--no-newline", "--type", "text"];
+    if (primary) args.push("--primary");
+    let child;
+    try {
+      child = spawnImplementation("wl-paste", args, { stdio: ["ignore", "pipe", "ignore"] });
+    } catch {
+      reject(failure("Clipboard reader is unavailable.", "CLIPBOARD_UNAVAILABLE"));
+      return;
+    }
+    const chunks = [];
+    let size = 0;
+    let settled = false;
+    const timer = setTimeout(() => finish(failure("Clipboard transfer timed out.", "CLIPBOARD_TIMEOUT")), timeoutMs);
+    function finish(error, text) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      child.stdout.destroy();
+      if (error) child.kill("SIGKILL");
+      chunks.length = 0;
+      if (error) reject(error);
+      else resolve3(text);
+    }
+    child.on("error", () => finish(failure("Clipboard reader is unavailable.", "CLIPBOARD_UNAVAILABLE")));
+    child.stdout.on("error", () => finish(failure("Clipboard transfer failed.", "CLIPBOARD_FAILED")));
+    child.stdout.on("data", (chunk) => {
+      if (settled) return;
+      if (chunk.length > MAX_CLIPBOARD_BYTES - size) {
+        finish(failure("Clipboard text exceeds 64 KiB.", "CLIPBOARD_TOO_LARGE"));
+        return;
+      }
+      chunks.push(chunk);
+      size += chunk.length;
+    });
+    child.on("close", (code) => {
+      if (settled) return;
+      if (code !== 0) finish(failure("No clipboard text is available.", "CLIPBOARD_FAILED"));
+      else finish(null, Buffer.concat(chunks, size).toString("utf8"));
+    });
+  });
+}
+function failure(message, code) {
+  return new ServiceError(message, { code, status: 422 });
+}
+
 // service/src/keybinding-conflicts.js
 import { execFileSync as execFileSync3 } from "node:child_process";
 function activeSystemBindings() {
@@ -6647,7 +6702,8 @@ function createHttpServer({
   applyVerseOfTheDayHotkey = shortcutsUnavailable,
   listSystemBindings = activeSystemBindings,
   requireAccount = true,
-  clientToken = randomBytes(32).toString("hex")
+  clientToken = randomBytes(32).toString("hex"),
+  clipboardReader = readClipboard
 }) {
   const study = userData?.database ? new StudyData(userData) : null;
   return createServer(async (request, response2) => {
@@ -6683,6 +6739,11 @@ function createHttpServer({
         await authentication.getAccessToken();
       }
       switch (route) {
+        case "POST /v1/clipboard/read": {
+          const body = await readJsonBody(request);
+          result = { text: await clipboardReader({ primary: body.primary === true }) };
+          break;
+        }
         case "GET /health":
           result = {
             ok: true,
@@ -7043,7 +7104,7 @@ function createHttpServer({
   });
 }
 function availableWithoutAccount(pathname) {
-  return pathname === "/health" || pathname.startsWith("/v1/auth/") || pathname === "/v1/study/options" || pathname === "/v1/study/radio-import" || pathname.startsWith("/v1/user-data/preferences/") && pathname !== "/v1/user-data/preferences/reader-tabs";
+  return pathname === "/health" || pathname === "/v1/clipboard/read" || pathname.startsWith("/v1/auth/") || pathname === "/v1/study/options" || pathname === "/v1/study/radio-import" || pathname.startsWith("/v1/user-data/preferences/") && pathname !== "/v1/user-data/preferences/reader-tabs";
 }
 async function dynamicRoute(method, pathname, downloadManager, userData) {
   const resumeMatch = pathname.match(/^\/v1\/downloads\/(\d+)\/resume$/);
@@ -7126,7 +7187,7 @@ function required2(query, name) {
 
 // service/src/oauth.js
 import { createHash as createHash2, createPublicKey, randomBytes as randomBytes2, randomUUID as randomUUID3, timingSafeEqual as timingSafeEqual2, verify } from "node:crypto";
-import { spawn } from "node:child_process";
+import { spawn as spawn2 } from "node:child_process";
 var PENDING_AUTH_LIFETIME_MS = 10 * 60 * 1e3;
 var ALLOWED_SCOPES = /* @__PURE__ */ new Set(["profile", "email"]);
 var ALLOWED_PERMISSIONS = /* @__PURE__ */ new Set(["highlights"]);
@@ -7441,7 +7502,7 @@ function safeHttpsUrl(value) {
 }
 function openExternalUrl(url2) {
   return new Promise((resolve3, reject) => {
-    const child = spawn("xdg-open", [url2], {
+    const child = spawn2("xdg-open", [url2], {
       detached: true,
       stdio: "ignore"
     });

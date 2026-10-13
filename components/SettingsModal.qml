@@ -1650,7 +1650,7 @@ FocusScope {
               radius: 0
             }
 
-            TextInput {
+            ClipboardTextEdit {
               id: secondaryLanguageInput
               anchors.fill: parent
               anchors.leftMargin: Style.spacing.controlPaddingX
@@ -1660,7 +1660,7 @@ FocusScope {
               selectedTextColor: root.foreground
               font.family: Style.font.family
               font.pixelSize: root.settingsBodyPixelSize
-              verticalAlignment: TextInput.AlignVCenter
+              verticalAlignment: TextEdit.AlignVCenter
               selectByMouse: true
               clip: true
               activeFocusOnTab: true
@@ -2554,7 +2554,7 @@ FocusScope {
                 radius: 0
               }
 
-              TextInput {
+              ClipboardTextEdit {
                 id: customStationNameInput
                 objectName: "customStationNameInput"
                 anchors.fill: parent
@@ -2565,7 +2565,7 @@ FocusScope {
                 selectedTextColor: root.foreground
                 font.family: Style.font.family
                 font.pixelSize: root.settingsBodyPixelSize
-                verticalAlignment: TextInput.AlignVCenter
+                verticalAlignment: TextEdit.AlignVCenter
                 selectByMouse: true
                 clip: true
                 activeFocusOnTab: true
@@ -2600,7 +2600,7 @@ FocusScope {
                 radius: 0
               }
 
-              TextInput {
+              ClipboardTextEdit {
                 id: customStationDescriptionInput
                 objectName: "customStationDescriptionInput"
                 anchors.fill: parent
@@ -2611,7 +2611,7 @@ FocusScope {
                 selectedTextColor: root.foreground
                 font.family: Style.font.family
                 font.pixelSize: root.settingsBodySmallPixelSize
-                verticalAlignment: TextInput.AlignVCenter
+                verticalAlignment: TextEdit.AlignVCenter
                 selectByMouse: true
                 clip: true
                 activeFocusOnTab: true
@@ -2650,7 +2650,7 @@ FocusScope {
                   radius: 0
                 }
 
-                TextInput {
+                ClipboardTextEdit {
                   id: customStationUrlInput
                   objectName: "customStationUrlInput"
                   anchors.fill: parent
@@ -2661,7 +2661,7 @@ FocusScope {
                   selectedTextColor: root.foreground
                   font.family: Style.font.family
                   font.pixelSize: root.settingsBodySmallPixelSize
-                  verticalAlignment: TextInput.AlignVCenter
+                  verticalAlignment: TextEdit.AlignVCenter
                   selectByMouse: true
                   clip: true
                   activeFocusOnTab: true
@@ -3084,7 +3084,7 @@ FocusScope {
           elide: Text.ElideRight
         }
 
-        TextInput {
+        ClipboardTextEdit {
           id: shortcutCaptureInput
           objectName: "shortcut-capture-input-" + String(shortcutRow.modelData.id || "")
           anchors.fill: parent
@@ -3096,8 +3096,8 @@ FocusScope {
           selectByMouse: true
           cursorVisible: false
           clip: true
-          horizontalAlignment: TextInput.AlignHCenter
-          verticalAlignment: TextInput.AlignVCenter
+          horizontalAlignment: TextEdit.AlignHCenter
+          verticalAlignment: TextEdit.AlignVCenter
           color: LightPalette.urgent
           font.family: Style.font.family
           font.pixelSize: root.settingsBodySmallPixelSize

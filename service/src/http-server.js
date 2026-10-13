@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { StudyData } from './study-data.js';
+import { readClipboard } from './clipboard.js';
 
 function shortcutsUnavailable() {
   throw new ServiceError('Global shortcuts require Light to be enabled in an Omarchy session.', {
@@ -26,6 +27,7 @@ export function createHttpServer({
   listSystemBindings = activeSystemBindings,
   requireAccount = true,
   clientToken = randomBytes(32).toString('hex'),
+  clipboardReader = readClipboard,
 }) {
   const study = userData?.database ? new StudyData(userData) : null;
   return createServer(async (request, response) => {
@@ -65,6 +67,11 @@ export function createHttpServer({
       }
 
       switch (route) {
+        case 'POST /v1/clipboard/read': {
+          const body = await readJsonBody(request);
+          result = { text: await clipboardReader({ primary: body.primary === true }) };
+          break;
+        }
         case 'GET /health':
           result = {
             ok: true,
@@ -405,6 +412,7 @@ export function createHttpServer({
 
 function availableWithoutAccount(pathname) {
   return pathname === '/health'
+    || pathname === '/v1/clipboard/read'
     || pathname.startsWith('/v1/auth/')
     || pathname === '/v1/study/options'
     || pathname === '/v1/study/radio-import'

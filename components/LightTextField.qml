@@ -34,7 +34,7 @@ Rectangle {
       root.inputActive ? 0.65 : 0.12)
     Behavior on color { ColorAnimation { duration: 120 } }
   }
-  TextInput {
+  ClipboardTextEdit {
     id: input
     anchors.left: parent.left
     anchors.right: parent.right
@@ -49,7 +49,7 @@ Rectangle {
     selectedTextColor: root.foreground
     font.family: Style.font.family
     font.pixelSize: root.fontSize
-    verticalAlignment: TextInput.AlignVCenter
+    verticalAlignment: TextEdit.AlignVCenter
     selectByMouse: true
     clip: true
     activeFocusOnTab: true

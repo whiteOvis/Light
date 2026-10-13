@@ -789,7 +789,7 @@ Item {
           font: bookInput.font
         }
 
-        TextInput {
+        ClipboardTextEdit {
           id: bookInput
           maximumLength: 100
           anchors.fill: parent
@@ -800,7 +800,7 @@ Item {
           selectedTextColor: root.foreground
           font.family: Style.font.family
           font.pixelSize: Math.max(Style.font.bodySmall, Math.round(root.textPixelSize * 0.8))
-          verticalAlignment: TextInput.AlignVCenter
+          verticalAlignment: TextEdit.AlignVCenter
           selectByMouse: true
           clip: true
           activeFocusOnTab: true
@@ -826,8 +826,9 @@ Item {
           Keys.onPressed: function(event) {
             if (event.key === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier)) {
               root.dismissSuggestions()
-              // Let KeyNavigation move focus without opening a result.
-              event.accepted = false
+              var nextControl = clearSearchButton.enabled ? clearSearchButton : settingsButton
+              nextControl.forceActiveFocus(Qt.TabFocusReason)
+              event.accepted = true
             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
               event.accepted = bookPopup.opened && bookPopup.keyboardSelectionMoved
                 ? bookPopup.chooseCurrent()

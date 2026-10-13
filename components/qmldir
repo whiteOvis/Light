@@ -3,6 +3,7 @@ ApplicationContainer 1.0 ApplicationContainer.qml
 AudioFeatures 1.0 AudioFeatures.qml
 BackupControls 1.0 BackupControls.qml
 BibleSelector 1.0 BibleSelector.qml
+ClipboardTextEdit 1.0 ClipboardTextEdit.qml
 ElideButton 1.0 ElideButton.qml
 InlineOptionPopup 1.0 InlineOptionPopup.qml
 LightApi 1.0 LightApi.qml

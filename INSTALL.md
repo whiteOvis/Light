@@ -17,6 +17,10 @@ Omarchy provides Node.js (22.13+ required), Quickshell, Qt Multimedia (6.10+),
 `curl`, `wl-clipboard`, and `xdg-utils`. Bible reading requires a YouVersion
 account and access to the YouVersion Platform API.
 
+For Qt 6.11.2 and 6.12.0 clipboard safety, the Qt packages need the native
+fixes described in [Qt clipboard hardening](security/qt/README.md). A standard
+Light install alone does not apply those dependency patches.
+
 The command installs the current upstream branch. Marketplace verification
 applies to an exact recorded commit; the standard install button will become
 available only after the marketplace approves this installation path.
